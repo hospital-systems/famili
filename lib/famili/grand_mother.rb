@@ -63,9 +63,9 @@ module Famili
 
       def has(name, &block)
         attributes[name] = lazy do
-          mother = "#{model_class.reflect_on_association(name.to_sym).klass.name}Famili".constantize.new
-          mother = mother.scoped(collect_attributes(&block)) if block_given?
-          mother
+          father = "#{model_class.reflect_on_association(name.to_sym).klass.name}Famili".constantize.new.father
+          father = father.scoped(collect_attributes(&block)) if block_given?
+          father
         end
       end
 

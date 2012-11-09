@@ -200,6 +200,7 @@ Put following lineinto your Gemfile
 
 == CHANGE LOG:
 
+* 1.1.1  - fixed bug with famili associations (has)
 * 1.1.0  - support custom persistence, support building & creating of objects using famili instance
 * 1.0.0  - changed API (old scope renamed to trait, scope conception refined)
 * 0.1.9  - optimize creation of relations
