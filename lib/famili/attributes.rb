@@ -7,6 +7,10 @@ module Famili
       @unresolved_names = attributes.keys
     end
 
+    def [](name)
+      (@cached_attributes ||= {})[name] ||= resolve(nil, name)
+    end
+
     def resolve(model, name)
       if unresolved_names.delete(name)
         attribute_value = @attributes[name]

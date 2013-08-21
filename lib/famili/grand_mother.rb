@@ -19,12 +19,19 @@ module Famili
       @father ||= self.class.father_class.new(self, self.class.attributes)
     end
 
+    #noinspection RubyUnusedLocalVariable
+    def instantiate(attributes)
+      self.class.model_class.new
+    end
+
     def save(model)
     end
 
+    #noinspection RubyUnusedLocalVariable
     def before_save(model)
     end
 
+    #noinspection RubyUnusedLocalVariable
     def after_create(model)
     end
 

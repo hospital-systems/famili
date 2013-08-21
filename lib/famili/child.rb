@@ -10,7 +10,7 @@ module Famili
     end
 
     def born
-      @model = @mother.class.model_class.new
+      @model = @mother.instantiate(@attributes)
       @meta_class = @model.singleton_class
       @model.instance_variable_set(:@__famili_child__, self)
       define_method_stub(:method_missing) do |name, *args|
