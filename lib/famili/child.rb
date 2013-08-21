@@ -1,14 +1,15 @@
+require 'famili/attributes'
+
 module Famili
   class Child < BasicObject
     attr_reader :mother
 
     def initialize(mother, attributes)
       @mother = mother
-      @attributes = attributes
+      @attributes = Attributes.new(attributes)
     end
 
     def born
-      @unresolved_property_names = @attributes.keys
       @model = @mother.class.model_class.new
       @meta_class = @model.singleton_class
       @model.instance_variable_set(:@__famili_child__, self)
@@ -20,10 +21,10 @@ module Famili
           send(@__famili_child__.munge(:method_missing), name, *args)
         end
       end
-      @unresolved_property_names.each do |key|
+      @attributes.unresolved_names.each do |key|
         define_property_stub(key)
       end
-      resolve_property(@unresolved_property_names.first) until @unresolved_property_names.empty?
+      resolve_property(@attributes.unresolved_names.first) until @attributes.unresolved_names.empty?
       undefine_method_stub(:method_missing)
       @model
     end
@@ -33,16 +34,8 @@ module Famili
     end
 
     def resolve_property(name)
-      @unresolved_property_names.delete(name)
       undefine_property_stub(name)
-      attribute_value = @attributes[name]
-      if attribute_value.is_a?(::Proc)
-        attribute_value = @model.instance_exec(&attribute_value)
-      elsif attribute_value.respond_to?(:call)
-        attribute_value = attribute_value.call
-      end
-      attribute_value = attribute_value.build if attribute_value.is_a?(::Famili::Father)
-      @model.send("#{name}=", attribute_value)
+      @model.send("#{name}=", @attributes.resolve(@model, name))
     end
 
     def define_property_stub(property_name)
