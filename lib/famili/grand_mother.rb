@@ -1,6 +1,13 @@
 require 'famili/father'
 require "famili/lazy_value"
 
+unless Class.respond_to?(:class_attribute)
+  require 'famili/class_attribute'
+end
+unless Module.respond_to?(:delegate)
+  require 'famili/delegate'
+end
+
 module Famili
   class GrandMother
     class_attribute :father_class

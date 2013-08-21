@@ -1,10 +1,6 @@
 require 'date'
 require 'famili/grand_mother'
 
-unless Class.respond_to?(:class_attribute)
-  require 'famili/class_attribute'
-end
-
 module Famili
   class Mother < Famili::GrandMother
     def save(model)
