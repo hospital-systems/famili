@@ -152,7 +152,7 @@ You even can use famili for not active record models. You don't need change ever
     name { 'John Smith' }
 
     def save(model)
-        model.persisted = true
+      model.persisted = true
     end
   end
 
@@ -171,17 +171,42 @@ If you need some additional objects for persistence (a.e. you are using some per
     name { 'John Smith' }
 
     def initialize(serializer)
-        @serializer = serializer
+      @serializer = serializer
     end
 
     def save(person)
-        serializer.serialize(person)
+      serializer.serialize(person)
     end
   end
 
 and usage sample:
 
    PersonFamili.new(XmlSerializer.new).create
+
+== Custom instantiated objects (without default constructor)
+
+If you want to create object with parameterized *initialize* method you can write own instantiate method
+
+  class Range
+    attr :from, :to
+
+    def initialize(from, to)
+      @from, @to = from, to
+    end
+  end
+
+  def RangeFamili < Famili::Mother
+    from { 100 }
+    to { 200 }
+
+    def instantiate(attributes)
+      Range.new(attributes[:from], attributes[:to])
+    end
+  end
+
+Note, if you access attribute once it will never be evaluated again, so it will not try to set *from* and *to*
+attributes for object and it safe to make attributes read-only. Other limitation - you can't use other factoried
+properties until object will be created (f.e. you can't write "to { from + 100 }").
 
 == Some useful methods
 
@@ -200,6 +225,8 @@ Put following lineinto your Gemfile
 
 == CHANGE LOG:
 
+* 1.2.0  - added support for custom objects instantiation throgh Famili::Mother#instantiate method
+* 1.1.2  - fixed bug with dirty object state for factoried object
 * 1.1.1  - fixed bug with famili associations (has)
 * 1.1.0  - support custom persistence, support building & creating of objects using famili instance
 * 1.0.0  - changed API (old scope renamed to trait, scope conception refined)
