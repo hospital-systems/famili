@@ -19,17 +19,17 @@ module Famili
 
     def build(opts = {})
       attributes = merge(opts)
-      model = Famili::Child.new(@mother, attributes).born
-      yield model if block_given?
-      @mother.before_save(model)
-      model
+      instance = @mother.born(Famili::Child.new(@mother, attributes))
+      yield instance if block_given?
+      @mother.before_save(instance)
+      instance
     end
 
     def create(opts = {}, &block)
-      model = build(opts, &block)
-      @mother.save(model)
-      @mother.after_create(model)
-      model
+      instance = build(opts, &block)
+      @mother.save(instance)
+      @mother.after_create(instance)
+      instance
     end
 
     def produce_brothers(num, opts={}, init_block, &block)

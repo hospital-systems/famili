@@ -24,6 +24,14 @@ module Famili
       self.class.model_class.new
     end
 
+    def born(child)
+      instance = instantiate(child)
+      child.bind(instance) { |name, value| instance.send("#{name}=", value) }
+      child.resolve_attributes
+      child.unbind
+      instance
+    end
+
     def save(model)
     end
 

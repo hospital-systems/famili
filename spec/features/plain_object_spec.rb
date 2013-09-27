@@ -4,7 +4,7 @@ class PlainObject
   attr_accessor :name
 end
 
-class PlainObjectFamili < Famili::Mother
+class PlainObjectFamili < Famili::GrandMother
   name { 'Plain Object' }
 end
 
