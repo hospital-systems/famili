@@ -6,11 +6,7 @@ class HashObjectFamili < Famili::GrandMother
   full_name { "#{last_name}, #{first_name}" }
 
   def born(child)
-    result = Hash.new
-    child.bind(result) { |name, value| result[name.to_sym] = value }
-    child.resolve_attributes
-    child.unbind
-    result
+    child.resolve_attributes(Hash.new) { |instance, name, value| instance[name.to_sym] = value }
   end
 end
 

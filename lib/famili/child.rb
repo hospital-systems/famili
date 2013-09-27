@@ -1,7 +1,5 @@
 module Famili
   class Child < BasicObject
-    attr_reader :mother, :unresolved_attribute_names, :cached_attributes
-
     def initialize(mother, attributes)
       @mother = mother
       @attributes = attributes
@@ -9,18 +7,29 @@ module Famili
       @cached_attributes = {}
     end
 
+    def [](name)
+      resolve_attribute(name)
+    end
+
+    def resolve_attributes(instance = nil, &block)
+      bind(instance, &block) if instance
+      resolve_attribute(unresolved_attribute_names.first) until unresolved_attribute_names.empty?
+      unbind if instance
+      instance
+    end
+
     def bind(instance, &block)
       @instance = instance
       @resolve_callback = block
       @instance.instance_variable_set(:@__famili_child__, self)
       define_method_stub(:method_missing) do |name, *args|
-        mother = @__famili_child__.mother
+        mother = @__famili_child__.__send__(:mother)
         if mother.respond_to?(name)
           mother.send(name, *args)
-        elsif (value = @__famili_child__.cached_attributes[name])
+        elsif (value = @__famili_child__.__send__(:cached_attributes)[name])
           value
         else
-          send(@__famili_child__.munge(:method_missing), name, *args)
+          send(@__famili_child__.__send__(:munge, :method_missing), name, *args)
         end
       end
       @attributes.each { |attr_name, _| define_property_stub(attr_name) }
@@ -33,13 +42,9 @@ module Famili
       @instance.send(:remove_instance_variable, :@__famili_child__)
     end
 
-    def resolve_attributes
-      resolve_attribute(unresolved_attribute_names.first) until unresolved_attribute_names.empty?
-    end
+    private
 
-    def [](name)
-      resolve_attribute(name)
-    end
+    attr_reader :mother, :unresolved_attribute_names, :cached_attributes
 
     def meta_class
       @instance.singleton_class
@@ -85,7 +90,7 @@ module Famili
           end
           attribute_value = attribute_value.build if attribute_value.is_a?(::Famili::Father)
           undefine_property_stub(name)
-          @resolve_callback.call(name, attribute_value) if @resolve_callback
+          @resolve_callback.call(@instance, name, attribute_value) if @resolve_callback
           attribute_value
         end
     end
